@@ -5,3 +5,4 @@ class cluster:
 
     def fit(self, X):
         pass
+
