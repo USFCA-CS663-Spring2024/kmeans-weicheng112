@@ -58,18 +58,21 @@ class KMeans(cluster):
             self.centroids = new_centroids
 
         return clusters.tolist(), self.centroids.tolist()
+
     def dist_eclud(self, my_instance):
         distances = []
         for centroid in self.centroids:
             distances.append(np.sqrt(np.sum(np.power(my_instance - centroid, 2))))
         return np.array(distances)
+
     def find_instance_in_cluster(self, index, data_set, clusters):
         instances = []
         for i in range(len(clusters)):
             if clusters[i] == index:
                 instances.append(data_set[i])
         return np.array(instances)
-    def balance_clusters(self, clusters, num_instances,X):
+
+    def balance_clusters(self, clusters, num_instances, X):
         size = num_instances // self.k
         for i in range(self.k):
             indices = np.where(clusters == i)[0]
@@ -82,11 +85,12 @@ class KMeans(cluster):
                     distances[i] = np.inf  # Make it positive infinity. Ignore the current cluster
                     clusters[j] = np.argmin(distances)
         return clusters
+
+
 #
 if __name__ == '__main__':
-
     mylist = [[0, 0], [2, 2], [0, 2], [2, 0], [10, 10], [8, 8], [10, 8], [8, 10]]
 
-    c = KMeans(k=2,balanced=True);
+    c = KMeans(k=2, balanced=True);
     mylist = [[0, 0], [2, 2], [0, 2], [2, 0], [10, 10], [8, 8], [10, 8], [8, 10]]
     print(c.fit(mylist))
