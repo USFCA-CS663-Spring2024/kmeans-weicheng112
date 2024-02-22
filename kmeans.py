@@ -5,10 +5,11 @@ import numpy as np
 
 class KMeans(cluster):
 
-    def __init__(self, k=5, max_iterations=100):
+    def __init__(self, k=5, max_iterations=100, balanced=False):
         super().__init__()
         self.k = k
         self.max_iterations = max_iterations
+        self.balanced = balanced
         self.centroids = []
 
     def fit(self, X):
@@ -36,6 +37,12 @@ class KMeans(cluster):
                 new_distances = self.dist_eclud(instance)
                 cluster = np.argmin(new_distances)
                 clusters[i] = cluster
+
+            # Make each of the k clusters are (roughly) equal with
+            #       respect to the number of instances in the cluster hypotheses
+            if self.balanced:
+                clusters = self.balance_clusters(clusters, num_instances, X)
+
             new_centroids = np.zeros((self.k, num_features))
             #     foreach k ∈ centroids:
             #         𝜇k = meanc(i) | index(c(i)) == k
@@ -62,12 +69,24 @@ class KMeans(cluster):
             if clusters[i] == index:
                 instances.append(data_set[i])
         return np.array(instances)
+    def balance_clusters(self, clusters, num_instances,X):
+        size = num_instances // self.k
+        for i in range(self.k):
+            indices = np.where(clusters == i)[0]
+            # clusters== i is a condition and the true value will place on [0]
+            if len(indices) > size:
+                num_needed_change = len(indices) - size
+                for j in indices[0:num_needed_change]:
+                    # 0~ num_needed_change - 1
+                    distances = self.dist_eclud(X[j])
+                    distances[i] = np.inf  # Make it positive infinity. Ignore the current cluster
+                    clusters[j] = np.argmin(distances)
+        return clusters
+#
+if __name__ == '__main__':
 
-#
-# if __name__ == '__main__':
-#
-#     mylist = [[0, 0], [2, 2], [0, 2], [2, 0], [10, 10], [8, 8], [10, 8], [8, 10]]
-#     for _ in range(100):
-#         c = KMeans(k=2);
-#         mylist = [[0, 0], [2, 2], [0, 2], [2, 0], [10, 10], [8, 8], [10, 8], [8, 10]]
-#         print(c.fit(mylist))
+    mylist = [[0, 0], [2, 2], [0, 2], [2, 0], [10, 10], [8, 8], [10, 8], [8, 10]]
+
+    c = KMeans(k=2,balanced=True);
+    mylist = [[0, 0], [2, 2], [0, 2], [2, 0], [10, 10], [8, 8], [10, 8], [8, 10]]
+    print(c.fit(mylist))
